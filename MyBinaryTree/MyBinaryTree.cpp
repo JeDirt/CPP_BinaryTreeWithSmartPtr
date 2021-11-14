@@ -88,7 +88,8 @@ public:
 
     const int size()const { return this->tree_size; }
     void clear() { clear_helper(Root); }
-  
+    void print_tree() { print_tree_helper(Root); }
+
 
 private:
 
@@ -338,6 +339,50 @@ private:
     }
 
 
+    /*  Thanks to https ://github.com/RonGreenberg/print-binary-tree-to-console  */
+    void print_nodes_helper(const string& padding, const string& edge, shared_ptr<Node>node, bool has_left_sibling)
+    {
+
+        if (node != nullptr) 
+        { 
+
+            cout << endl << padding << edge << node.get()->Data;
+
+          
+            if ((!node.get()->Left) && (!node.get()->Right))
+            {
+
+                cout << endl << padding; 
+                if (has_left_sibling) { cout << "|"; }  
+           
+            }
+
+            else
+            {
+              
+                string new_padding = padding + (has_left_sibling ? "|    " : "     ");
+
+                print_nodes_helper(new_padding, "|----", node.get()->Right, node.get()->Left != nullptr);
+                print_nodes_helper(new_padding, "|____", node.get()->Left, false);
+
+            }
+
+        }
+
+    } 
+    void print_tree_helper(shared_ptr<Node> &node)
+    {
+        
+        if (!node) { return; }
+         
+        cout << node.get()->Data;
+
+        print_nodes_helper("", "|----", node.get()->Right, node.get()->Left != nullptr);
+        print_nodes_helper("", "|____", node.get()->Left, false);
+
+    } 
+
+
 private:
 
 
@@ -354,8 +399,6 @@ int main()
 {
   
   
-  
-
 
 	return 0;
 

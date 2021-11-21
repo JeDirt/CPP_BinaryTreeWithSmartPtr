@@ -3,6 +3,9 @@
 #include <memory>
 #include <algorithm>
 #include <stack>
+#include <ctime>
+#include <random>
+#include <chrono>
 
 
 using namespace std;
@@ -46,7 +49,7 @@ public:
         tree_size++;
 
     }
-    const T find(const T DataToFind)const
+    T find(const T DataToFind)const
     {
 
         if (Root == nullptr) { return T(); }
@@ -64,12 +67,12 @@ public:
     }
 
 
-    const T min()const
+    T min()const
     { 
         auto min_value = min_helper(Root); 
         return min_value.get()->Data; 
     }
-    const T max()const
+    T max()const
     {
         auto max_value = max_helper(Root);
         return max_value.get()->Data;
@@ -86,7 +89,7 @@ public:
     void postorderTraversalByStack() { postorderTraversalByStack_helper(Root); }
 
 
-    const int size()const { return this->tree_size; }
+    int size()const { return this->tree_size; }
     void clear() { clear_helper(Root); }
     void print_tree() { print_tree_helper(Root); }
 
@@ -94,7 +97,7 @@ public:
 private:
 
 
-    const shared_ptr<Node> createNode(const T DataToPaste)
+    shared_ptr<Node> createNode(const T DataToPaste)
     {
 
         shared_ptr<Node> temp = make_shared<Node>(Node());
@@ -127,7 +130,7 @@ private:
         }
 
     }
-    const T find_helper(const shared_ptr<Node>& Node, const T DataToFind)const
+    T find_helper(const shared_ptr<Node>& Node, const T DataToFind)const
     {
 
         if (!Node.get()) { return T(); }
@@ -137,7 +140,7 @@ private:
         else { return find_helper(Node.get()->Right, DataToFind); }
 
     }
-    const shared_ptr<Node> delete_helper(shared_ptr<Node> &node,T DataToDelete)
+    shared_ptr<Node> delete_helper(shared_ptr<Node> &node,T DataToDelete)
     {
 
         if (!node) { return node; }
@@ -190,14 +193,14 @@ private:
     }
 
 
-    const shared_ptr<Node> min_helper(const shared_ptr<Node>& Node)const
+    shared_ptr<Node> min_helper(const shared_ptr<Node>& Node)const
     {
 
         if (Node->Left != nullptr) { return min_helper(Node.get()->Left); }
         else { return Node; }
 
     }
-    const shared_ptr<Node> max_helper(const shared_ptr<Node>& Node)const
+    shared_ptr<Node> max_helper(const shared_ptr<Node>& Node)const
     {
 
         if (Node.get()->Right != nullptr) { return  max_helper(Node.get()->Right); }
@@ -393,12 +396,91 @@ private:
 };
 
 
+// Random generators for generating results
+auto CreateRandomGenerator(const int start_range, const int end_range)
+{
+
+    // An instance of an engine
+    random_device random_device;
+
+    // Specify the engine and distribution
+    mt19937 engine{ random_device() };
+    uniform_int_distribution<int> distribution{ start_range, end_range };
 
 
+    return  [&distribution, &engine]() { return distribution(engine); };
+
+}
+int GenerateRandomValue(const int start_range, const int end_range)
+{
+    return CreateRandomGenerator(start_range, end_range)();
+}
+vector<int> GenerateVector(const int start_range, const int end_range, int vector_length)
+{
+
+    if (vector_length < 0) { vector_length = 1; }
+
+    vector<int> temp(vector_length);
+  
+    for (size_t i = 0; i < vector_length; i++)
+    {
+        temp[i] = GenerateRandomValue(start_range, end_range);
+    }
+
+    return temp;
+
+}
+
+
+
+// Time trackers, used it to build some line charts
+
+/*
+auto begin = chrono::steady_clock::now();
+auto end = chrono::steady_clock::now();
+*/
+//auto elapsed_ms = chrono::duration_cast<chrono::milliseconds>(end - begin);
+// cout << "runtime = " << elapsed_ms.count() <<" ms/n"<< endl;
+
+
+
+// Demonstrating results of the work(needed only for personal purposes)
 int main()
 {
+
+   
+    BinaryTree<int>tree;
+    vector<int>test_data{ GenerateVector(1,100,10) };
+
+    cout << "Generated array -> ";
+    for_each(test_data.begin(), test_data.end(), [](auto v) {cout << v << " "; });
+    cout << endl << endl;
+
+
+
+    for (size_t i = 0; i < test_data.size(); i++)
+    {
+        tree.push(test_data[i]);
+    }
+
+   
+    tree.print_tree();
+    cout << endl;
+
+    cout << "Min element is " << tree.min() << endl;
+    cout << "Max element is " << tree.max() << endl;
+
+    int searched_and_deleted = GenerateRandomValue(1,100);
+    cout << endl << "Looking for element "<< searched_and_deleted <<" there we have " << tree.find(searched_and_deleted) << endl;
+
+    int searched = GenerateRandomValue(1, 100);
+    cout << "Looking for element " << searched << " there we have " << tree.find(searched) << endl;
+
+
   
-  
+    cout << "\n\nLet's delete element " << searched_and_deleted << ":" << endl << endl;
+    tree.delete_element(searched_and_deleted);
+    tree.print_tree();
 
 	return 0;
 
